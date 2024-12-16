@@ -1,44 +1,16 @@
 const express = require("express");
 const router = express.Router();
-const userModel = require("../models/user-model");
-const bcrypt = require("bcrypt");
-const jwt = require('jsonwebtoken')
-const {generateToken} = require('../utils/generateToken.js')
+const {registerUser, loginUser, logout} = require('../controllers/authController.js')
+
 
 router.get("/", (req, res) => {
   res.send("hey its working");
 });
 
-router.post("/register", (req, res) => {
-  try {
-    let { email, fullname, password } = req.body;
+router.post("/register", registerUser);
 
-    bcrypt.genSalt(10, (err, salt) => {
-      bcrypt.hash(password, salt, (err, hash) => {
-        if (err) {
-          return res.send(err.message);
-        } else {
-          let user = userModel.create({
-            email,
-            fullname,
-            password: hash,
-          });
+router.post("/login", loginUser)
 
-          // Generate a JSON Web Token (JWT) using the user's email and ID
-          let token = generateToken(user)
-
-          // Set the token as a cookie in the response
-          res.cookie("token", token);
-
-          
-          res.send("user created successfully");
-
-        }
-      });
-    });
-  } catch (err) {
-    res.send(err.message);
-  }
-});
+router.post("logout", logout)
 
 module.exports = router;
